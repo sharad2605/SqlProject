@@ -3,14 +3,14 @@ const db = require('../utils/db-connection');
 
 // INSERT
 const addEntries = (req, res) => {
-    const { name, email } = req.body;
+    const { name, email, age } = req.body;
 
     const insertQuery = `
-        INSERT INTO students (name, email)
-        VALUES (?, ?)
+        INSERT INTO students (name, email, age)
+        VALUES (?, ?, ?)
     `;
 
-    db.execute(insertQuery, [name, email], (err, result) => {
+    db.execute(insertQuery, [name, email, age], (err, result) => {
 
         if (err) {
             console.error('Error inserting data:', err);
@@ -36,21 +36,22 @@ const addEntries = (req, res) => {
 // UPDATE
 const updateEntry = (req, res) => {
     const { id } = req.params;
-    const { name, email } = req.body;
+    const { name, email ,age} = req.body;
 
     const updateQuery = `
         UPDATE students
-        SET name = ?, email = ?
+        SET name = ?, email = ?, age = ?
         WHERE id = ?
     `;
 
     db.execute(
         updateQuery,
-        [name, email, id],
+        [name, email, age, id],
         (err, result) => {
             console.log("id:", id);
 console.log("name:", name);
 console.log("email:", email);
+console.log("age:", age);
 
             if (err) {
                 console.error('Error updating data:', err);
@@ -84,7 +85,61 @@ console.log("email:", email);
         }
     );
 };
+// GET BY ID
+const getEntryById = (req, res) => {
 
+    const { id } = req.params;
+
+    const getQuery = `
+        SELECT * FROM students
+        WHERE id = ?
+    `;
+
+    db.execute(getQuery, [id], (err, result) => {
+
+        if (err) {
+            console.error('Error fetching student:', err);
+
+            res.status(500).send(
+                'Error fetching student from database'
+            );
+
+            return;
+        }
+
+        if (result.length === 0) {
+            res.status(404).send(
+                `Student with id ${id} not found`
+            );
+
+            return;
+        }
+
+        res.status(200).json(result[0]);
+    });
+};
+// GET ALL
+const getEntries = (req, res) => {
+
+    const getQuery = `
+        SELECT * FROM students
+    `;
+
+    db.execute(getQuery, (err, result) => {
+
+        if (err) {
+            console.error('Error fetching data:', err);
+
+            res.status(500).send(
+                'Error fetching students from database'
+            );
+
+            return;
+        }
+
+        res.status(200).json(result);
+    });
+};
 
 // DELETE
 const deleteEntry = (req, res) => {
@@ -137,5 +192,7 @@ const deleteEntry = (req, res) => {
 module.exports = {
     addEntries,
     updateEntry,
+    getEntryById,
+    getEntries,
     deleteEntry
 };

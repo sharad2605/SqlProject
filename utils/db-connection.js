@@ -1,89 +1,107 @@
-const mysql = require('mysql2');
+const {Sequelize} = require('sequelize');
 
-
-const connection = mysql.createConnection({
+const sequelize = new Sequelize('testdb', 'root', 'root', {
     host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'testdb'
+    dialect: 'mysql'
 });
 
-connection.connect((err) => {
-    if (err) {
-        console.error('Error connecting to the database:', err);
-    return;
-    }
+(async()=>{
+    try{
+    await sequelize.authenticate();
+    console.log('Connection has been established successfully.');
+
+}catch(error){
+    console.error('Unable to connect to the database:', error);
+}})();
+
+module.exports = sequelize;
+
+// const mysql = require('mysql2');
+
+
+// const connection = mysql.createConnection({
+//     host: 'localhost',
+//     user: 'root',
+//     password: 'root',
+//     database: 'testdb'
+// });
+
+// connection.connect((err) => {
+//     if (err) {
+//         console.error('Error connecting to the database:', err);
+//     return;
+//     }
 
 
 
     
-    console.log('Connected to the database');
-    const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS Users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        email VARCHAR(255) NOT NULL UNIQUE
-    )
-`;
+//     console.log('Connected to the database');
+//     const createTableQuery = `
+//     CREATE TABLE IF NOT EXISTS Users (
+//         id INT AUTO_INCREMENT PRIMARY KEY,
+//         name VARCHAR(255) NOT NULL,
+//         email VARCHAR(255) NOT NULL UNIQUE
+//     )
+// `;
 
-connection.execute(createTableQuery, (err) => {
-    if (err) {
-        console.error('Error creating Users table:', err);
-        return;
-    }
+// connection.execute(createTableQuery, (err) => {
+//     if (err) {
+//         console.error('Error creating Users table:', err);
+//         return;
+//     }
 
-    console.log('Users table created successfully');
-});
+//     console.log('Users table created successfully');
+// });
 
-const createTableBusesQuery = `
-    CREATE TABLE IF NOT EXISTS Buses (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        busNumber VARCHAR(255) NOT NULL,
-        totalSeats VARCHAR(255) NOT NULL UNIQUE,
-        availableSeats VARCHAR(255) NOT NULL UNIQUE
-    )
-`;
+// const createTableBusesQuery = `
+//     CREATE TABLE IF NOT EXISTS Buses (
+//         id INT AUTO_INCREMENT PRIMARY KEY,
+//         busNumber VARCHAR(255) NOT NULL,
+//         totalSeats VARCHAR(255) NOT NULL UNIQUE,
+//         availableSeats VARCHAR(255) NOT NULL UNIQUE
+//     )
+// `;
 
-connection.execute(createTableBusesQuery, (err) => {
-    if (err) {
-        console.error('Error creating Buses table:', err);
-        return;
-    }
+// connection.execute(createTableBusesQuery, (err) => {
+//     if (err) {
+//         console.error('Error creating Buses table:', err);
+//         return;
+//     }
 
-    console.log('Buses table created successfully');
-});
-const createTableBookingQuery = `
-    CREATE TABLE IF NOT EXISTS Bookings (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        seatNumber VARCHAR(255) NOT NULL
-    )
-`;
+//     console.log('Buses table created successfully');
+// });
+// const createTableBookingQuery = `
+//     CREATE TABLE IF NOT EXISTS Bookings (
+//         id INT AUTO_INCREMENT PRIMARY KEY,
+//         seatNumber VARCHAR(255) NOT NULL
+//     )
+// `;
 
-connection.execute(createTableBookingQuery, (err) => {
-    if (err) {
-        console.error('Error creating Bookings table:', err);
-        return;
-    }
+// connection.execute(createTableBookingQuery, (err) => {
+//     if (err) {
+//         console.error('Error creating Bookings table:', err);
+//         return;
+//     }
 
-    console.log('Bookings table created successfully');
-});
-const createTablePaymentQuery = `
-    CREATE TABLE IF NOT EXISTS Payments (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        amountPaid DECIMAL(10, 2) NOT NULL,
-        paymentStatus VARCHAR(255) NOT NULL UNIQUE
-    )
-`;
+//     console.log('Bookings table created successfully');
+// });
+// const createTablePaymentQuery = `
+//     CREATE TABLE IF NOT EXISTS Payments (
+//         id INT AUTO_INCREMENT PRIMARY KEY,
+//         amountPaid DECIMAL(10, 2) NOT NULL,
+//         paymentStatus VARCHAR(255) NOT NULL UNIQUE
+//     )
+// `;
 
-connection.execute(createTablePaymentQuery, (err) => {
-    if (err) {
-        console.error('Error creating Payment table:', err);
-        return;
-    }
+// connection.execute(createTablePaymentQuery, (err) => {
+//     if (err) {
+//         console.error('Error creating Payment table:', err);
+//         return;
+//     }
 
-    console.log('Payment table created successfully');
-});
+//     console.log('Payment table created successfully');
+// });
 
-})
+// })
 
-module.exports = connection;
+// module.exports = connection;

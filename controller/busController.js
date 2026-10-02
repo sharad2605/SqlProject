@@ -1,64 +1,57 @@
-const db = require('../utils/db-connection');
+const Buses = require('../models/buses');
+const { Op } = require('sequelize');
 
-const addBus = (req, res) => {
+// POST /buses
+const addBus = async (req, res) => {
+    try {
+        const {
+            busNumber,
+            totalSeats,
+            availableSeats
+        } = req.body;
 
-    const {
-        busNumber,
-        totalSeats,
-        availableSeats
-    } = req.body;
+        const bus = await Buses.create({
+            busNumber: busNumber,
+            totalSeats: totalSeats,
+            availableSeats: availableSeats
+        });
 
-    const query = `
-        INSERT INTO Buses
-        (busNumber, totalSeats, availableSeats)
-        VALUES (?, ?, ?)
-    `;
+        res.status(201).send(
+            `Bus with number ${busNumber} added successfully`
+        );
 
-    db.execute(
-        query,
-        [busNumber, totalSeats, availableSeats],
-        (err, result) => {
+    } catch (error) {
+        console.error('Error inserting bus:', error);
 
-            if (err) {
-                console.error("Error adding bus:", err);
-                res.status(500).send("Error adding bus");
-                return;
-            }
-
-            console.log("Bus added successfully");
-
-            res.status(201).send(
-                `Bus added successfully with id ${result.insertId}`
-            );
-        }
-    );
+        res.status(500).send(
+            'Error inserting bus into the database'
+        );
+    }
 };
 
 
-const getAvailableBuses = (req, res) => {
+// GET /buses/available/:seats
+const getAvailableBuses = async (req, res) => {
+    try {
+        const { seats } = req.params;
 
-    const { seats } = req.params;
+        const buses = await Buses.findAll({
+            where: {
+                availableSeats: {
+                    [Op.gt]: seats
+                }
+            }
+        });
 
-    const query = `
-        SELECT *
-        FROM Buses
-        WHERE availableSeats > ?
-    `;
+        res.status(200).json(buses);
 
-    db.execute(query, [seats], (err, result) => {
+    } catch (error) {
+        console.error('Error fetching buses:', error);
 
-        if (err) {
-            console.error("Error fetching buses:", err);
-            res.status(500).send("Error fetching buses");
-            return;
-        }
-
-        console.log(
-            `Buses with more than ${seats} available seats fetched`
+        res.status(500).send(
+            'Error fetching buses from the database'
         );
-
-        res.status(200).json(result);
-    });
+    }
 };
 
 

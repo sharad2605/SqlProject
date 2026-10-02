@@ -13,7 +13,7 @@ app.use('/students', studentRoutes);
 app.use('/users', userRoutes);
 app.use('/buses', busRoutes);
 
-db.sync({force: true}).then(() => {
+db.sync({force: false}).then(() => {
   console.log('Database synchronized');
   app.listen(3000, () => {
   console.log('Server is running on port 3000');

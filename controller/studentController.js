@@ -1,89 +1,42 @@
 const db = require('../utils/db-connection');
+const Student = require('../models/students');
 
 
 // INSERT
-const addEntries = (req, res) => {
-    const { name, email, age } = req.body;
+const addEntries = async (req, res) => {
+    try{
+        const { name, email } = req.body;
+        const student= await Student.create({
+            email:email,
+            name:name
+        });
 
-    const insertQuery = `
-        INSERT INTO students (name, email, age)
-        VALUES (?, ?, ?)
-    `;
+        res.status(201).send(`users with name   ${name} added successfully`);
+    }catch(error){
+            res.status(500).send('Error inserting data into the database');
+    }
+    
 
-    db.execute(insertQuery, [name, email, age], (err, result) => {
-
-        if (err) {
-            console.error('Error inserting data:', err);
-
-            res.status(500).send(
-                'Error inserting data into the database'
-            );
-
-            return;
-        }
-
-        console.log(
-            `INSERT: Student added successfully with id ${result.insertId}`
-        );
-
-        res.status(200).send(
-            `Student with name ${name} added successfully`
-        );
-    });
+   
 };
 
 
 // UPDATE
-const updateEntry = (req, res) => {
+const updateEntry = async (req, res) => {
+    try{
     const { id } = req.params;
-    const { name, email ,age} = req.body;
+    const { name,} = req.body;
 
-    const updateQuery = `
-        UPDATE students
-        SET name = ?, email = ?, age = ?
-        WHERE id = ?
-    `;
-
-    db.execute(
-        updateQuery,
-        [name, email, age, id],
-        (err, result) => {
-            console.log("id:", id);
-console.log("name:", name);
-console.log("email:", email);
-console.log("age:", age);
-
-            if (err) {
-                console.error('Error updating data:', err);
-
-                res.status(500).send(
-                    'Error updating data in the database'
-                );
-
-                return;
-            }
-
-            if (result.affectedRows === 0) {
-                console.log(
-                    `UPDATE: Student with id ${id} not found`
-                );
-
-                res.status(404).send(
-                    `Student with id ${id} not found`
-                );
-
-                return;
-            }
-
-            console.log(
-                `UPDATE: Student with id ${id} updated successfully`
-            );
-
-            res.status(200).send(
-                `Student with id ${id} updated successfully`
-            );
-        }
-    );
+    const student = await Student.findByPk(id);
+    if (!student) {
+        return res.status(404).send(`Student  with id ${id} not found`);
+    }
+        student.name = name;
+        await student.save();
+        res.status(200).send(`Student with id ${id} updated successfully`);
+    }catch(error){
+        res.status(500).send('Error updating data in the database');
+    }
 };
 // GET BY ID
 const getEntryById = (req, res) => {
@@ -142,50 +95,24 @@ const getEntries = (req, res) => {
 };
 
 // DELETE
-const deleteEntry = (req, res) => {
-    const { id } = req.params;
+const deleteEntry = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const student = await Student.destroy({
+            where: { id: id }
+        });
 
-    const deleteQuery = `
-        DELETE FROM students
-        WHERE id = ?
-    `;
-
-    db.execute(
-        deleteQuery,
-        [id],
-        (err, result) => {
-
-            if (err) {
-                console.error('Error deleting data:', err);
-
-                res.status(500).send(
-                    'Error deleting data from the database'
-                );
-
-                return;
-            }
-
-            if (result.affectedRows === 0) {
-                console.log(
-                    `DELETE: Student with id ${id} not found`
-                );
-
-                res.status(404).send(
-                    `Student with id ${id} not found`
-                );
-
-                return;
-            }
-
-            console.log(
-                `DELETE: Student with id ${id} deleted successfully`
-            );
-
-            res.status(200).send(
-                `Student with id ${id} deleted successfully`
-            );
+        if (!student) {
+            return res.status(404).send(`Student with id ${id} not found`);
         }
-    );
+        res.status(200).send(`Student with id ${id} deleted successfully`);
+        
+    }catch (error) {
+        console.error('Error deleting data:', error);
+        res.status(500).send('Error deleting data from the database');
+    }
+
+    
 };
 
 
